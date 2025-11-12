@@ -1,0 +1,56 @@
+═══════════════════════════════════════════════════════════════
+    IDENTIFIANTS ET MOTS DE PASSE - APPLICATION BANCAIRE
+═══════════════════════════════════════════════════════════════
+
+ADMINISTRATEUR
+--------------
+Identifiant : admin
+Mot de passe : admin123
+
+
+CLIENTS
+-------
+
+1. Jean Dupont (2 comptes : 20 000€)
+   Identifiant : jean.dupont
+   Mot de passe : 1234
+
+2. Marie Martin (1 compte : 3 500,50€)
+   Identifiant : marie.martin
+   Mot de passe : 1234
+
+3. Pierre Bernard (2 comptes : 37 000€)
+   Identifiant : pierre.bernard
+   Mot de passe : 1234
+
+4. Sophie Dubois (1 compte : 8 500,75€)
+   Identifiant : sophie.dubois
+   Mot de passe : 1234
+
+5. Luc Thomas (1 compte : 2 000€)
+   Identifiant : luc.thomas
+   Mot de passe : 1234
+
+
+FORMAT DES IDENTIFIANTS
+-----------------------
+- Format client : prenom.nom (tout en minuscules)
+- Mot de passe commun : 1234
+- Admin : admin / admin123
+
+
+LANCEMENT DE L'APPLICATION
+---------------------------
+./run_login_app.sh
+
+ou
+
+./mvnw clean javafx:run -Djavafx.mainClass="com.example.cbclient.BanqueLoginApp"
+
+
+CONNEXION RAPIDE RECOMMANDÉE
+-----------------------------
+Identifiant : jean.dupont
+Mot de passe : 1234
+
+═══════════════════════════════════════════════════════════════

@@ -1,12 +1,7 @@
 package com.example.cbclient;
 
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
 import model.Client;
 import model.Compte;
 import model.Operation;
@@ -15,151 +10,50 @@ import service.GestionCompteService;
 import java.math.BigDecimal;
 
 /**
- * Interface graphique de l'application bancaire
+ * Contrôleur pour l'interface graphique FXML
  */
-public class BanqueGUI extends Application {
+public class BanqueGUIController {
+
+    @FXML private ComboBox<Client> clientCombo;
+    @FXML private ComboBox<Compte> compteCombo;
+    @FXML private Label soldeLabel;
+    @FXML private TextArea historiqueArea;
+    @FXML private TextField montantField;
+    @FXML private Button btnDepot;
+    @FXML private Button btnRetrait;
+    @FXML private Button btnVirement;
 
     private GestionCompteService service;
-    private ComboBox<Client> clientCombo;
-    private ComboBox<Compte> compteCombo;
-    private Label soldeLabel;
-    private TextArea historiqueArea;
-    private TextField montantField;
+    private String utilisateurConnecte;
 
-    @Override
-    public void start(Stage primaryStage) {
+    /**
+     * Définir l'utilisateur connecté
+     */
+    public void setUtilisateurConnecte(String identifiant) {
+        this.utilisateurConnecte = identifiant;
+        System.out.println("Utilisateur connecté : " + identifiant);
+    }
+
+    @FXML
+    public void initialize() {
         service = new GestionCompteService();
-        initialiserDonnees();
+        // Les données sont automatiquement chargées depuis la BD par GestionCompteService
 
-        primaryStage.setTitle("🏦 Gestion Bancaire");
-
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(15));
-
-        // Partie supérieure - Sélection client/compte
-        VBox topBox = creerPanneauSelection();
-        root.setTop(topBox);
-
-        // Centre - Opérations
-        VBox centerBox = creerPanneauOperations();
-        root.setCenter(centerBox);
-
-        // Bas - Historique
-        VBox bottomBox = creerPanneauHistorique();
-        root.setBottom(bottomBox);
-
-        Scene scene = new Scene(root, 800, 700);
-        // scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
-
-    private VBox creerPanneauSelection() {
-        VBox vbox = new VBox(10);
-        vbox.setPadding(new Insets(10));
-        vbox.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 5;");
-
-        Label titre = new Label("Sélection Client & Compte");
-        titre.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        HBox selectionBox = new HBox(15);
-        selectionBox.setAlignment(Pos.CENTER_LEFT);
-
-        // ComboBox Client
-        Label clientLabel = new Label("Client:");
-        clientCombo = new ComboBox<>();
-        clientCombo.getItems().addAll(service.getClients());
+        // Configurer les événements
         clientCombo.setOnAction(e -> chargerComptesClient());
-        clientCombo.setPrefWidth(200);
-
-        // ComboBox Compte
-        Label compteLabel = new Label("Compte:");
-        compteCombo = new ComboBox<>();
         compteCombo.setOnAction(e -> afficherInfosCompte());
-        compteCombo.setPrefWidth(200);
 
-        // Label Solde
-        soldeLabel = new Label("Solde: -- €");
-        soldeLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2196F3;");
-
-        selectionBox.getChildren().addAll(
-                clientLabel, clientCombo,
-                compteLabel, compteCombo,
-                soldeLabel
-        );
-
-        vbox.getChildren().addAll(titre, selectionBox);
-        return vbox;
-    }
-
-    private VBox creerPanneauOperations() {
-        VBox vbox = new VBox(15);
-        vbox.setPadding(new Insets(20));
-
-        Label titre = new Label("Opérations Bancaires");
-        titre.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        // Champ montant
-        HBox montantBox = new HBox(10);
-        montantBox.setAlignment(Pos.CENTER_LEFT);
-        Label montantLabel = new Label("Montant (€):");
-        montantField = new TextField();
-        montantField.setPromptText("0.00");
-        montantField.setPrefWidth(150);
-        montantBox.getChildren().addAll(montantLabel, montantField);
-
-        // Boutons d'opérations
-        HBox boutonsBox = new HBox(10);
-        boutonsBox.setAlignment(Pos.CENTER);
-
-        Button btnDepot = new Button("💰 Dépôt");
-        btnDepot.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 14px;");
-        btnDepot.setPrefWidth(120);
-        btnDepot.setOnAction(e -> effectuerDepot());
-
-        Button btnRetrait = new Button("💸 Retrait");
-        btnRetrait.setStyle("-fx-background-color: #FF9800; -fx-text-fill: white; -fx-font-size: 14px;");
-        btnRetrait.setPrefWidth(120);
-        btnRetrait.setOnAction(e -> effectuerRetrait());
-
-        Button btnVirement = new Button("🔄 Virement");
-        btnVirement.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 14px;");
-        btnVirement.setPrefWidth(120);
-        btnVirement.setOnAction(e -> effectuerVirement());
-
-        boutonsBox.getChildren().addAll(btnDepot, btnRetrait, btnVirement);
-
-        vbox.getChildren().addAll(titre, montantBox, boutonsBox);
-        return vbox;
-    }
-
-    private VBox creerPanneauHistorique() {
-        VBox vbox = new VBox(10);
-        vbox.setPadding(new Insets(10));
-
-        Label titre = new Label("Historique des Opérations");
-        titre.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        historiqueArea = new TextArea();
-        historiqueArea.setEditable(false);
-        historiqueArea.setPrefHeight(250);
-        historiqueArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 12px;");
-
-        vbox.getChildren().addAll(titre, historiqueArea);
-        return vbox;
-    }
-
-    private void initialiserDonnees() {
-        // Créer des clients de démonstration
-        Client alice = service.creerClient("Dupont", "Alice");
-        Client bob = service.creerClient("Martin", "Bob");
-        Client charlie = service.creerClient("Dubois", "Charlie");
-
-        // Créer des comptes
-        service.creerCompte(alice, new BigDecimal("1000.00"));
-        service.creerCompte(alice, new BigDecimal("500.00"));
-        service.creerCompte(bob, new BigDecimal("2500.00"));
-        service.creerCompte(charlie, new BigDecimal("750.00"));
+        // Charger les clients depuis la base de données
+        clientCombo.getItems().addAll(service.getClients());
+        
+        // Afficher un message si aucun client n'est chargé
+        if (service.getClients().isEmpty()) {
+            System.out.println("⚠️ Aucun client chargé depuis la base de données");
+            afficherErreur("Aucune donnée trouvée dans la base de données.\nVérifiez la connexion MySQL.");
+        } else {
+            System.out.println("✅ " + service.getClients().size() + " clients chargés depuis la BD");
+            System.out.println("✅ " + service.getTousLesComptes().size() + " comptes chargés depuis la BD");
+        }
     }
 
     private void chargerComptesClient() {
@@ -202,6 +96,7 @@ public class BanqueGUI extends Application {
         historiqueArea.setText(sb.toString());
     }
 
+    @FXML
     private void effectuerDepot() {
         try {
             Compte compte = compteCombo.getValue();
@@ -224,6 +119,7 @@ public class BanqueGUI extends Application {
         }
     }
 
+    @FXML
     private void effectuerRetrait() {
         try {
             Compte compte = compteCombo.getValue();
@@ -246,6 +142,7 @@ public class BanqueGUI extends Application {
         }
     }
 
+    @FXML
     private void effectuerVirement() {
         try {
             Compte compteSource = compteCombo.getValue();
@@ -306,9 +203,5 @@ public class BanqueGUI extends Application {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
